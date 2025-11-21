@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>合伙人操作文档</title>
+<style>
+body{margin:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.8;color:#111827;background:#ffffff}
+.container{max-width:880px;margin:0 auto}
+.title{font-size:28px;font-weight:700;margin-bottom:12px}
+.subtitle{font-size:14px;color:#6b7280;margin-bottom:24px}
+.content h1,.content h2,.content h3{color:#0f172a}
+.content h1{font-size:28px}
+.content h2{font-size:22px;margin-top:18px}
+.content h3{font-size:18px;margin-top:16px}
+.content code{background:#f3f4f6;color:#111827;padding:2px 6px;border-radius:4px}
+.content pre{background:#f8fafc;color:#111827;border:1px solid #e5e7eb;border-radius:8px;padding:16px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:15px;line-height:1.8}
+.content a{color:#2563eb;text-decoration:none}
+.content a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="title">合伙人操作文档</div>
+<div class="subtitle">按当前线上业务与校验规则整理</div>
+<div id="app" class="content"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script type="text/markdown" id="md">
+# 合伙人操作文档
+
+**适用范围**
+- 群昵称必须以`HP_`开头
+- 支持模板类型：`【补全微信号】`、`【合伙人接手】`、`【放弃】`、`【转销售】`
+
+**操作顺序（业务流程）**
+- 场景A（已分配待接手）：先`【合伙人接手】`，状态转为`合伙人跟进中`
+- 场景B（需补充联系方式）：在`待接手/合伙人跟进中`阶段使用`【补全微信号】`
+- 跟进阶段：如需结束合伙人跟进可`【放弃】`（状态转为`已流失`）
+- 转交销售：在`合伙人跟进中`使用`【转销售】`，明确`HP_分配给:@XS_销售昵称`
+- 输出结果：状态有序变化，系统生成对应流程日志（接手/补全/放弃/转销售）
+
+**模板格式（高对比度）**
+```
+【补全微信号】
+家长编号：Pxxxxxxxx
+HP_微信昵称: 昵称文本（可选）
+HP_微信号: wxid_example
+```
+```
+【合伙人接手】
+家长编号：Pxxxxxxxx
+HP_人设: 家长号/机构号/老师号/校方号/其他
+```
+```
+【放弃】
+家长编号：Pxxxxxxxx
+HP_原因: 文本
+```
+```
+【转销售】
+家长编号：Pxxxxxxxx
+HP_需求: 文本
+HP_意向度: 低/中/高
+HP_添加微信: 是/否
+HP_联系方式说明: 文本（可选）
+HP_分配给: @销售昵称
+HP_备注: 文本（可选）
+```
+
+**填写说明**
+- `补全微信号`仅在`待接手/合伙人跟进中`阶段可用，且必须由被分配合伙人执行
+- `合伙人接手`要求当前状态为`待接手`，且是被分配的合伙人
+- `放弃`仅允许在`合伙人跟进中`阶段
+- `转销售`必须使用`HP_分配给:@XS_销售昵称`；若销售未登记但昵称以`XS_`开头，系统按前缀自动识别并绑定（团队未登记）
+- 字段枚举：意向度为`低/中/高`；人设为`家长号/机构号/老师号/校方号/其他`
+
+**成功回执示例**
+- ✅ 微信号补全成功！状态：合伙人跟进中
+- ✅ 合伙人接手成功！状态：合伙人跟进中
+- ✅ 放弃成功！状态：已流失
+- ✅ 转销售成功！团队：未登记，状态：销售跟进中
+
+**常见错误与解决**
+- 非被分配合伙人尝试操作：提示无权限
+- 未指定销售或无前缀：需使用`@XS_销售昵称`
+</script>
+<script>
+var md=document.getElementById('md').textContent;document.getElementById('app').innerHTML=marked.parse(md);
+</script>
+</body>
+</html>

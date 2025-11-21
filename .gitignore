@@ -1,0 +1,12 @@
+.env
+*.env
+logs/
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+venv/
+.venv/
+node_modules/
+Optimize Page Content/node_modules/
+.DS_Store

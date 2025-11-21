@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家长数据总览</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: 1.875rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        p {
+            font-size: 0.875rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-trigger {
+            transition: all 0.2s;
+        }
+
+        .tab-trigger.active {
+            background-color: white;
+            color: rgb(15 23 42);
+        }
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:none;align-items:center;justify-content:center;z-index:50}
+        .modal-content{width:90%;max-width:960px;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.15);overflow:hidden}
+        .modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(15,23,42,0.08)}
+        .modal-title{font-size:18px;font-weight:600;color:#0f172a}
+        .modal-close{border:none;background:transparent;color:#64748b;font-size:16px;cursor:pointer}
+        .modal-body{padding:12px 20px}
+        .table-wrap{max-height:60vh;overflow:auto;border:1px solid rgba(15,23,42,0.08);border-radius:8px}
+        .data-table{width:100%;border-collapse:collapse}
+        .data-table thead th{position:sticky;top:0;background:#f8fafc;color:#0f172a;font-weight:600;font-size:13px;border-bottom:1px solid rgba(15,23,42,0.1);padding:10px}
+        .data-table tbody td{font-size:12px;color:#334155;border-bottom:1px solid rgba(15,23,42,0.06);padding:10px}
+        .modal-footer{display:flex;justify-content:flex-end;padding:12px 20px;border-top:1px solid rgba(15,23,42,0.08)}
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+    <div class="max-w-7xl mx-auto space-y-6">
+        <!-- Header -->
+        <div class="space-y-2">
+            <h1 class="text-slate-900 text-3xl font-bold">家长数据总览</h1>
+            <p class="text-slate-500">快速浏览学校心数据，点击数字查看明细</p>
+        </div>
+
+        <!-- Overview Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- 总例子数 -->
+            <div class="bg-white border-l-4 border-l-blue-500 shadow-sm hover:shadow-md transition-shadow rounded-lg">
+                <div class="p-6 pb-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-slate-700">总例子数</h3>
+                        <div class="p-2 bg-blue-100 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-6 pb-6">
+                    <div class="space-y-1">
+                        <div id="overallTotal" class="text-4xl font-bold text-slate-900 cursor-pointer">0</div>
+                        <p class="text-slate-500">所有数据面板</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 今日新增 -->
+            <div class="bg-white border-l-4 border-l-green-500 shadow-sm hover:shadow-md transition-shadow rounded-lg">
+                <div class="p-6 pb-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-slate-700">今日新增</h3>
+                        <div class="p-2 bg-green-100 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600">
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                                <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/>
+                                <polyline points="22 7 13 13 2 7"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-6 pb-6">
+                    <div class="space-y-1">
+                        <div id="todayTotal" class="text-4xl font-bold text-slate-900 cursor-pointer">0</div>
+                        <p class="text-slate-500">新增案例</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 阶段类型 -->
+            <div class="bg-white border-l-4 border-l-purple-500 shadow-sm hover:shadow-md transition-shadow rounded-lg">
+                <div class="p-6 pb-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-slate-700">阶段类型</h3>
+                        <div class="p-2 bg-purple-100 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-600">
+                                <circle cx="12" cy="8" r="6"/>
+                                <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-6 pb-6">
+                    <div id="stageChips" class="space-y-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="space-y-4">
+            <!-- Tab List -->
+            <div class="bg-slate-100 p-1 rounded-lg grid grid-cols-3 gap-1">
+                <button class="tab-trigger active px-4 py-2 rounded-md font-medium" data-tab="total">个人的总例子量</button>
+                <button class="tab-trigger px-4 py-2 rounded-md font-medium" data-tab="daily">个人每天的例子量</button>
+                <button class="tab-trigger px-4 py-2 rounded-md font-medium" data-tab="alloc">分配明细</button>
+            </div>
+
+            <div class="tab-content active" id="total">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white shadow-sm rounded-lg">
+                        <div class="p-6">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <circle cx="12" cy="12" r="6"/>
+                                    <circle cx="12" cy="12" r="2"/>
+                                </svg>
+                                <h3 class="text-slate-900">销售个人总例子量</h3>
+                            </div>
+                            
+                            <div id="salesTop" class="space-y-3"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white shadow-sm rounded-lg">
+                        <div class="p-6">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600">
+                                    <circle cx="12" cy="8" r="6"/>
+                                    <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+                                </svg>
+                                <h3 class="text-slate-900">社媒个人总例子量</h3>
+                            </div>
+                            
+                            <div id="socialTop" class="space-y-3"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white shadow-sm rounded-lg">
+                        <div class="p-6">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-rose-600">
+                                    <circle cx="12" cy="8" r="6"/>
+                                    <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+                                </svg>
+                                <h3 class="text-slate-900">合伙人个人总例子量</h3>
+                            </div>
+                            
+                            <div id="partnerTop" class="space-y-3"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white shadow-sm rounded-lg md:col-span-2">
+                        <div class="p-6">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-600">
+                                    <path d="M3 3h18v4H3z"/>
+                                    <path d="M3 11h12v4H3z"/>
+                                    <path d="M3 19h6v2H3z"/>
+                                </svg>
+                                <h3 class="text-slate-900">数据分类</h3>
+                            </div>
+                            <div class="grid grid-cols-1 gap-4">
+                                <div>
+                                    <p class="text-slate-500 mb-2">销售团队分布</p>
+                                    <div id="teamTotals" class="space-y-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="daily">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white shadow-sm rounded-lg">
+                        <div class="p-6">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600">
+                                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                                    <polyline points="16 7 22 7 22 13"/>
+                                </svg>
+                                <h3 class="text-slate-900">社媒ID每日新增</h3>
+                            </div>
+                            
+                            <div id="dailySocialTop" class="space-y-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="alloc">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white shadow-sm rounded-lg">
+                        <div class="p-6">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-600">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="m16 11 2 2 4-4"/>
+                                </svg>
+                                <h3 class="text-slate-900">社群分配给销售</h3>
+                            </div>
+                            
+                            <div id="allocSocialSales" class="space-y-3"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white shadow-sm rounded-lg">
+                        <div class="p-6">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-violet-600">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                <h3 class="text-slate-900">社群分配给合伙人</h3>
+                            </div>
+                            
+                            <div id="allocSocialPartner" class="space-y-3"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white shadow-sm rounded-lg md:col-span-2">
+                        <div class="p-6">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-600">
+                                    <path d="M3 3v16a2 2 0 0 0 2 2h16"/>
+                                    <path d="m19 9-5 5-4-4-3 3"/>
+                                </svg>
+                                <h3 class="text-slate-900">合伙人分配给销售</h3>
+                            </div>
+                            
+                            <div id="allocPartnerSales" class="space-y-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <!-- Data List Section -->
+        <div class="space-y-6 pt-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-slate-900 mb-1 text-2xl font-bold">父母数据列表</h2>
+                    <p class="text-slate-500">完整的数据记录与管理</p>
+                </div>
+                <span id="listTotal" class="inline-flex items-center px-3 py-1 rounded-full text-sm border text-slate-600">共 0 条记录</span>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="bg-white shadow-sm rounded-lg">
+                <div class="p-4">
+                    <div class="flex gap-3">
+                        <div class="flex-1 relative">
+                            <input id="searchInput"
+                                type="text" 
+                                placeholder="搜索编号或ID检索"
+                                class="w-full h-10 px-3 pr-10 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900"
+                            />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="m21 21-4.3-4.3"/>
+                            </svg>
+                        </div>
+                        <button id="searchBtn" class="px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-md transition-colors">
+                            搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Items -->
+            <div id="dataList" class="space-y-4">
+                <!-- Data items will be inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <div id="detailModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="detailModalTitle"></div>
+                <button id="detailModalClose" class="modal-close">关闭</button>
+            </div>
+            <div class="modal-body">
+                <div class="p-3 border-b border-slate-200 flex items-center gap-3">
+                    <input id="filterStartDate" type="date" class="h-9 px-3 border border-slate-200 rounded-md" />
+                    <span class="text-slate-500">至</span>
+                    <input id="filterEndDate" type="date" class="h-9 px-3 border border-slate-200 rounded-md" />
+                    <button id="filterApplyBtn" class="px-4 h-9 bg-slate-900 hover:bg-slate-800 text-white rounded-md">筛选</button>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>家长编号</th>
+                                <th>社媒ID</th>
+                                <th>合伙人ID</th>
+                                <th>销售ID</th>
+                                <th>阶段</th>
+                                <th>预付金额</th>
+                                <th>成交金额</th>
+                                <th>到访</th>
+                                <th>创建时间</th>
+                                <th>更新时间</th>
+                                <th>反馈数</th>
+                                <th>操作数</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailModalTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="detailModalClose2" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-md">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        const tabTriggers = document.querySelectorAll('.tab-trigger');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabTriggers.forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                const targetTab = trigger.getAttribute('data-tab');
+                
+                // Remove active class from all triggers and contents
+                tabTriggers.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked trigger and corresponding content
+                trigger.classList.add('active');
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+
+        async function loadDashboard() {
+            const r = await fetch('/api/dashboard');
+            const d = await r.json();
+            if (!d || !d.success) return;
+            document.getElementById('overallTotal').textContent = d.overview.overall_total;
+            document.getElementById('todayTotal').textContent = d.overview.today_total;
+            const sc = document.getElementById('stageChips');
+            sc.innerHTML = '';
+            d.followup_stage_stats.forEach(row => {
+                const a = document.createElement('a');
+                a.className = 'inline-flex items-center px-3 py-1 rounded-full text-sm border bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100';
+                a.textContent = `${row.stage} ${row.count}`;
+                a.href = `/api/parents/detail?detail_kind=followup_stage&stage=${encodeURIComponent(row.stage)}`;
+                a.addEventListener('click', handleDetailClick);
+                sc.appendChild(a);
+            });
+            
+            const renderList = (containerId, list, labelKey) => {
+                const c = document.getElementById(containerId);
+                c.innerHTML = '';
+                const buildRow = (row) => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center justify-between p-3 bg-gradient-to-r from-slate-50 to-transparent rounded-lg border w-full';
+                    const left = document.createElement('div');
+                    left.className = 'flex items-center gap-3';
+                    const name = document.createElement('span');
+                    name.className = 'text-slate-700 font-medium';
+                    name.textContent = row[labelKey] || row.staff_id;
+                    left.appendChild(name);
+                    const num = document.createElement('a');
+                    num.className = 'text-slate-900 font-semibold text-lg hover:text-blue-600';
+                    num.textContent = row.count;
+                    if (containerId === 'salesTop') {
+                        num.href = `/api/parents/detail?detail_kind=by_salesperson&sales_id=${encodeURIComponent(row.staff_id)}`;
+                    } else if (containerId === 'socialTop') {
+                        num.href = `/api/parents/detail?detail_kind=by_social&social_id=${encodeURIComponent(row.staff_id)}`;
+                    } else if (containerId === 'dailySocialTop') {
+                        num.href = `/api/parents/detail?detail_kind=by_social&social_id=${encodeURIComponent(row.staff_id)}&today_only=1`;
+                    } else if (containerId === 'partnerTop') {
+                        num.href = `/api/parents/detail?detail_kind=by_partner&partner_id=${encodeURIComponent(row.staff_id)}`;
+                    }
+                    num.addEventListener('click', handleDetailClick);
+                    const wrap = document.createElement('div');
+                    wrap.className = 'flex items-center justify-between w-full';
+                    wrap.appendChild(left);
+                    wrap.appendChild(num);
+                    div.appendChild(wrap);
+                    return div;
+                };
+                const max = 5;
+                const initial = (list || []).slice(0, max);
+                initial.forEach(row => c.appendChild(buildRow(row)));
+                const parent = c.parentNode;
+                const oldBtn = document.getElementById(containerId + 'MoreBtn');
+                if (oldBtn) oldBtn.remove();
+                if ((list || []).length > max) {
+                    const moreBtn = document.createElement('button');
+                    moreBtn.id = containerId + 'MoreBtn';
+                    moreBtn.className = 'mt-3 text-slate-700 hover:text-slate-900 underline';
+                    moreBtn.textContent = '显示更多';
+                    moreBtn.onclick = () => {
+                        c.innerHTML = '';
+                        (list || []).forEach(row => c.appendChild(buildRow(row)));
+                        moreBtn.remove();
+                    };
+                    parent.appendChild(moreBtn);
+                }
+            };
+            renderList('salesTop', d.individual_totals_sales, 'staff_id');
+            renderList('socialTop', d.individual_totals_social, 'staff_id');
+            renderList('dailySocialTop', d.daily_social_today || [], 'staff_id');
+            renderList('partnerTop', d.individual_totals_partner, 'staff_id');
+            const tt = document.getElementById('teamTotals');
+            if (tt) {
+                tt.innerHTML = '';
+                (d.team_totals || []).forEach(row => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center justify-between p-3 bg-gradient-to-r from-slate-50 to-transparent rounded-lg border';
+                    const left = document.createElement('span');
+                    left.className = 'text-slate-700 font-medium';
+                    left.textContent = row.team;
+                    const num = document.createElement('a');
+                    num.className = 'text-slate-900 font-semibold text-lg hover:text-blue-600';
+                    num.textContent = row.count;
+                    num.href = `/api/parents/detail?detail_kind=by_sales_team&team=${encodeURIComponent(row.team)}`;
+                    num.addEventListener('click', handleDetailClick);
+                    const wrap = document.createElement('div');
+                    wrap.className = 'flex items-center justify-between w-full';
+                    wrap.appendChild(left);
+                    wrap.appendChild(num);
+                    div.appendChild(wrap);
+                    tt.appendChild(div);
+                });
+            }
+            
+            const as = document.getElementById('allocSocialSales');
+            as.innerHTML = '';
+            const asList = d.alloc_social_to_sales || [];
+            const asMax = 5;
+            const asInitial = asList.slice(0, asMax);
+            const buildAllocSS = (row) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-transparent rounded-lg border w-full';
+                const left = document.createElement('div');
+                left.className = 'text-slate-700 flex items-center gap-3';
+                const s1 = document.createElement('span');
+                s1.className = 'font-medium';
+                s1.textContent = `社媒: ${row.social_id}`;
+                const mid = document.createElement('span');
+                mid.className = 'text-slate-400';
+                mid.textContent = '分配给';
+                const s2 = document.createElement('span');
+                s2.className = 'font-medium';
+                s2.textContent = `销售: ${row.sales_id}`;
+                left.appendChild(s1);
+                left.appendChild(mid);
+                left.appendChild(s2);
+                const num = document.createElement('a');
+                num.className = 'text-slate-900 font-semibold text-lg hover:text-emerald-600';
+                num.textContent = row.count;
+                num.href = `/api/parents/detail?detail_kind=alloc_social_to_sales&social_id=${encodeURIComponent(row.social_id)}&sales_id=${encodeURIComponent(row.sales_id)}`;
+                num.addEventListener('click', handleDetailClick);
+                const wrap = document.createElement('div');
+                wrap.className = 'flex items-center justify-between w-full';
+                wrap.appendChild(left);
+                wrap.appendChild(num);
+                div.appendChild(wrap);
+                return div;
+            };
+            asInitial.forEach(row => as.appendChild(buildAllocSS(row)));
+            const asParent = as.parentNode;
+            const asOldBtn = document.getElementById('allocSocialSalesMoreBtn');
+            if (asOldBtn) asOldBtn.remove();
+            if (asList.length > asMax) {
+                const moreBtn = document.createElement('button');
+                moreBtn.id = 'allocSocialSalesMoreBtn';
+                moreBtn.className = 'mt-3 text-slate-700 hover:text-slate-900 underline';
+                moreBtn.textContent = '显示更多';
+                moreBtn.onclick = () => {
+                    as.innerHTML = '';
+                    asList.forEach(row => as.appendChild(buildAllocSS(row)));
+                    moreBtn.remove();
+                };
+                asParent.appendChild(moreBtn);
+            }
+            const aps = document.getElementById('allocPartnerSales');
+            aps.innerHTML = '';
+            const apsList = d.alloc_partner_to_sales || [];
+            const apsMax = 5;
+            const apsInitial = apsList.slice(0, apsMax);
+            const buildAllocPS = (row) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between p-3 bg-gradient-to-r from-cyan-50 to-transparent rounded-lg border w-full';
+                const left = document.createElement('div');
+                left.className = 'text-slate-700 flex items-center gap-3';
+                const s1 = document.createElement('span');
+                s1.className = 'font-medium';
+                s1.textContent = `合伙人: ${row.partner_id}`;
+                const mid = document.createElement('span');
+                mid.className = 'text-slate-400';
+                mid.textContent = '分配给';
+                const s2 = document.createElement('span');
+                s2.className = 'font-medium';
+                s2.textContent = `销售: ${row.sales_id}`;
+                left.appendChild(s1);
+                left.appendChild(mid);
+                left.appendChild(s2);
+                const num = document.createElement('a');
+                num.className = 'text-slate-900 font-semibold text-lg hover:text-cyan-600';
+                num.textContent = row.count;
+                num.href = `/api/parents/detail?detail_kind=alloc_partner_to_sales&partner_id=${encodeURIComponent(row.partner_id)}&sales_id=${encodeURIComponent(row.sales_id)}`;
+                num.addEventListener('click', handleDetailClick);
+                const wrap = document.createElement('div');
+                wrap.className = 'flex items-center justify-between w-full';
+                wrap.appendChild(left);
+                wrap.appendChild(num);
+                div.appendChild(wrap);
+                return div;
+            };
+            apsInitial.forEach(row => aps.appendChild(buildAllocPS(row)));
+            const apsParent = aps.parentNode;
+            const apsOldBtn = document.getElementById('allocPartnerSalesMoreBtn');
+            if (apsOldBtn) apsOldBtn.remove();
+            if (apsList.length > apsMax) {
+                const moreBtn = document.createElement('button');
+                moreBtn.id = 'allocPartnerSalesMoreBtn';
+                moreBtn.className = 'mt-3 text-slate-700 hover:text-slate-900 underline';
+                moreBtn.textContent = '显示更多';
+                moreBtn.onclick = () => {
+                    aps.innerHTML = '';
+                    apsList.forEach(row => aps.appendChild(buildAllocPS(row)));
+                    moreBtn.remove();
+                };
+                apsParent.appendChild(moreBtn);
+            }
+            const asp = document.getElementById('allocSocialPartner');
+            if (asp) {
+                asp.innerHTML = '';
+                const aspList = d.alloc_social_to_partner || [];
+                const aspMax = 5;
+                const aspInitial = aspList.slice(0, aspMax);
+                const buildAllocSP = (row) => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center justify-between p-3 bg-gradient-to-r from-violet-50 to-transparent rounded-lg border w-full';
+                    const left = document.createElement('div');
+                    left.className = 'text-slate-700 flex items-center gap-3';
+                    const s1 = document.createElement('span');
+                    s1.className = 'font-medium';
+                    s1.textContent = `社媒: ${row.social_id}`;
+                    const mid = document.createElement('span');
+                    mid.className = 'text-slate-400';
+                    mid.textContent = '分配给';
+                    const s2 = document.createElement('span');
+                    s2.className = 'font-medium';
+                    s2.textContent = `合伙人: ${row.partner_id}`;
+                    left.appendChild(s1);
+                    left.appendChild(mid);
+                    left.appendChild(s2);
+                    const num = document.createElement('a');
+                    num.className = 'text-slate-900 font-semibold text-lg hover:text-violet-600';
+                    num.textContent = row.count;
+                    num.href = `/api/parents/detail?detail_kind=alloc_social_to_partner&social_id=${encodeURIComponent(row.social_id)}&partner_id=${encodeURIComponent(row.partner_id)}`;
+                    num.addEventListener('click', handleDetailClick);
+                    const wrap = document.createElement('div');
+                    wrap.className = 'flex items-center justify-between w-full';
+                    wrap.appendChild(left);
+                    wrap.appendChild(num);
+                    div.appendChild(wrap);
+                    return div;
+                };
+                aspInitial.forEach(row => asp.appendChild(buildAllocSP(row)));
+                const aspParent = asp.parentNode;
+                const aspOldBtn = document.getElementById('allocSocialPartnerMoreBtn');
+                if (aspOldBtn) aspOldBtn.remove();
+                if (aspList.length > aspMax) {
+                    const moreBtn = document.createElement('button');
+                    moreBtn.id = 'allocSocialPartnerMoreBtn';
+                    moreBtn.className = 'mt-3 text-slate-700 hover:text-slate-900 underline';
+                    moreBtn.textContent = '显示更多';
+                    moreBtn.onclick = () => {
+                        asp.innerHTML = '';
+                        aspList.forEach(row => asp.appendChild(buildAllocSP(row)));
+                        moreBtn.remove();
+                    };
+                    aspParent.appendChild(moreBtn);
+                }
+            }
+        }
+
+        async function loadList(q = '') {
+            const r = await fetch('/api/parents' + (q ? ('?q=' + encodeURIComponent(q)) : ''));
+            const d = await r.json();
+            if (!d || !d.success) return;
+            document.getElementById('listTotal').textContent = `共 ${d.total} 条记录`;
+            const dataListContainer = document.getElementById('dataList');
+            dataListContainer.innerHTML = '';
+            d.rows.forEach(item => { dataListContainer.innerHTML += createDataItemHTML(item); });
+            attachDataListEvents();
+        }
+
+        let currentDetailUrl = '';
+        function handleDetailClick(e) {
+            e.preventDefault();
+            const href = e.currentTarget.getAttribute('href');
+            currentDetailUrl = href;
+            const u = new URL(href, window.location.origin);
+            const kind = u.searchParams.get('detail_kind') || '';
+            let fetchUrl = href;
+            let postFilter = null;
+            if (kind === 'alloc_social_to_partner') {
+                const partnerId = u.searchParams.get('partner_id') || '';
+                const socialId = u.searchParams.get('social_id') || '';
+                fetchUrl = `/api/parents/detail?detail_kind=by_partner&partner_id=${encodeURIComponent(partnerId)}`;
+                postFilter = (rows) => rows.filter(r => (r.social_media_id || '') === socialId);
+            }
+            fetch(fetchUrl).then(r=>r.json()).then(d=>{
+                if (!d || !d.success) return;
+                const rows = d.rows || [];
+                openModal(d.title, postFilter ? postFilter(rows) : rows);
+            });
+        }
+
+        function openModal(title, rows){
+            document.getElementById('detailModalTitle').textContent = title;
+            const tbody = document.getElementById('detailModalTbody');
+            tbody.innerHTML = '';
+            const sdInput = document.getElementById('filterStartDate');
+            const edInput = document.getElementById('filterEndDate');
+            if (sdInput) sdInput.value = '';
+            if (edInput) edInput.value = '';
+            rows.forEach(row=>{
+                const tr = document.createElement('tr');
+                const cells = [
+                    row.parent_code || '',
+                    row.social_media_id || '',
+                    row.partner_id || '',
+                    row.salesperson_id || '',
+                    row.followup_stage || '',
+                    (row.prepayment_amount ?? ''),
+                    (row.deal_amount ?? ''),
+                    row.visit_status || '',
+                    row.created_at || '',
+                    row.updated_at || '',
+                    String(row.feedback_count || 0),
+                    String(row.log_count || 0)
+                ];
+                cells.forEach(v=>{
+                    const td = document.createElement('td');
+                    td.textContent = v;
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            const overlay = document.getElementById('detailModal');
+            overlay.style.display = 'flex';
+            const isDaily = currentDetailUrl.includes('today_only=1') || currentDetailUrl.includes('detail_kind=daily_sales_today');
+            const filterBar = overlay.querySelector('.p-3.border-b.border-slate-200');
+            if (filterBar) filterBar.style.display = isDaily ? 'none' : 'flex';
+            const applyBtn = document.getElementById('filterApplyBtn');
+            applyBtn.onclick = ()=>{
+                const sd = document.getElementById('filterStartDate').value;
+                const ed = document.getElementById('filterEndDate').value;
+                if (!currentDetailUrl) return;
+                let url = currentDetailUrl;
+                url += (url.includes('?') ? '&' : '?');
+                if (sd) url += `start_date=${encodeURIComponent(sd)}&`;
+                if (ed) url += `end_date=${encodeURIComponent(ed)}&`;
+                if (url.endsWith('&')) url = url.slice(0,-1);
+                fetch(url).then(r=>r.json()).then(d=>{
+                    if (!d || !d.success) return;
+                    const sdv = document.getElementById('filterStartDate').value;
+                    const edv = document.getElementById('filterEndDate').value;
+                    const sdd = sdv ? new Date(sdv) : null;
+                    const edd = edv ? new Date(edv) : null;
+                    const rows = (d.rows||[]).filter(row=>{
+                        const ca = row.created_at ? new Date(row.created_at) : null;
+                        if (!ca) return true;
+                        let ok = true;
+                        if (sdd) ok = ok && (ca >= new Date(sdd.getFullYear(), sdd.getMonth(), sdd.getDate()));
+                        if (edd) ok = ok && (ca < new Date(edd.getFullYear(), edd.getMonth(), edd.getDate()+1));
+                        return ok;
+                    });
+                    const tbody2 = document.getElementById('detailModalTbody');
+                    tbody2.innerHTML = '';
+                    rows.forEach(row=>{
+                        const tr2 = document.createElement('tr');
+                        const cells2 = [
+                            row.parent_code || '',
+                            row.social_media_id || '',
+                            row.partner_id || '',
+                            row.salesperson_id || '',
+                            row.followup_stage || '',
+                            (row.prepayment_amount ?? ''),
+                            (row.deal_amount ?? ''),
+                            row.visit_status || '',
+                            row.created_at || '',
+                            row.updated_at || '',
+                            String(row.feedback_count || 0),
+                            String(row.log_count || 0)
+                        ];
+                        cells2.forEach(v=>{
+                            const td2 = document.createElement('td');
+                            td2.textContent = v;
+                            tr2.appendChild(td2);
+                        });
+                        tbody2.appendChild(tr2);
+                    });
+                });
+            };
+        }
+        function closeModal(){
+            const overlay = document.getElementById('detailModal');
+            overlay.style.display = 'none';
+        }
+
+        // Function to create data item HTML
+        function createDataItemHTML(data) {
+            return `
+                <div class="bg-white shadow-sm hover:shadow-md transition-shadow rounded-lg" data-id="${data.id}" data-parent-code="${data.parentCode || ''}" data-partner="${data.partner || ''}" data-salesperson="${data.salesPerson || ''}" data-stage="${data.studentStatus || ''}">
+                    <div class="bg-gradient-to-r from-slate-50 to-white px-4 py-3 border-b border-slate-200 rounded-t-lg">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm border bg-indigo-50 text-indigo-700 border-indigo-200">${data.parentCode || ''}</span>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm border bg-slate-50 text-slate-700 border-slate-200">ID: ${data.id}</span>
+                            </div>
+                            <span class="text-sm text-slate-500">所属群 · ${data.attributeGroup}</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <div class="text-sm text-slate-500 mb-1">业务类型</div>
+                                <div class="text-slate-900">${data.businessType || "None"}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-slate-500 mb-1">合伙人ID</div>
+                                <div class="text-slate-900">${data.partner || "None"}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-slate-500 mb-1">销售ID</div>
+                                <div class="text-slate-900">${data.salesPerson || "None"}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-slate-500 mb-1">销售团队</div>
+                                <div class="text-slate-900">${data.salesTeam || "None"}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-slate-500 mb-1">成交金额</div>
+                                <div class="text-slate-900">${data.completedAmount || "None"}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-slate-500 mb-1">学生ID</div>
+                                <div class="text-slate-900">${data.studentId || "None"}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-slate-500 mb-1">跟进阶段</div>
+                                <div class="text-slate-900">${data.studentStatus || "None"}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-slate-500 mb-1">预付金额</div>
+                                <div class="text-slate-900">${data.prepaidAmount || "None"}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-slate-500 mb-1">到访状态</div>
+                                <div class="text-slate-900">${data.visitStatus || "None"}</div>
+                            </div>
+                        </div>
+                        ${data.createdTime ? `
+                        <div class="flex flex-wrap gap-4 mb-4 pb-4 border-b border-slate-100">
+                            <div>
+                                <span class="text-sm text-slate-500">创建时间 </span>
+                                <span class="text-sm text-slate-900">${data.createdTime}</span>
+                            </div>
+                            ${data.updatedTime ? `
+                            <div>
+                                <span class="text-sm text-slate-500">更新时间 </span>
+                                <span class="text-sm text-slate-900">${data.updatedTime}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                        ` : ''}
+                        <div class="flex gap-2">
+                            <button class="edit-btn flex-1 px-4 py-2 border border-slate-300 hover:bg-slate-50 rounded-md transition-colors flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                                    <path d="m15 5 4 4"/>
+                                </svg>
+                                编辑
+                            </button>
+                            <button class="delete-btn flex-1 px-4 py-2 border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 rounded-md transition-colors flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 6h18"/>
+                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                </svg>
+                                删除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function attachDataListEvents(){
+            document.querySelectorAll('#dataList .edit-btn').forEach(btn=>{
+                btn.addEventListener('click', ()=>{
+                    const root = btn.closest('[data-id]');
+                    const id = root.getAttribute('data-id');
+                    window.open(`/admin/parents/edit/${id}`, '_blank');
+                });
+            });
+            document.querySelectorAll('#dataList .delete-btn').forEach(btn=>{
+                btn.addEventListener('click', async ()=>{
+                    const root = btn.closest('[data-id]');
+                    const id = root.getAttribute('data-id');
+                    const ok = confirm('确认删除该记录？');
+                    if (!ok) return;
+                    await fetch(`/admin/parents/delete/${id}`, { method: 'POST' });
+                    const q = document.getElementById('searchInput').value.trim();
+                    loadList(q);
+                    loadDashboard();
+                });
+            });
+        }
+
+        function refreshAll(){
+            loadDashboard();
+            const q = document.getElementById('searchInput').value?.trim() || '';
+            loadList(q);
+        }
+        loadDashboard();
+        document.getElementById('overallTotal').addEventListener('click', ()=>{
+            handleDetailClick({ preventDefault: ()=>{}, currentTarget: { getAttribute: ()=>'/api/parents/detail?detail_kind=overall' } });
+        });
+        document.getElementById('todayTotal').addEventListener('click', ()=>{
+            handleDetailClick({ preventDefault: ()=>{}, currentTarget: { getAttribute: ()=>'/api/parents/detail?detail_kind=daily_added&today_only=1' } });
+        });
+        loadList();
+        document.getElementById('searchBtn').addEventListener('click', ()=>{
+            const q = document.getElementById('searchInput').value.trim();
+            loadList(q);
+        });
+        window.addEventListener('focus', ()=>{
+            refreshAll();
+        });
+        document.getElementById('detailModalClose').addEventListener('click', closeModal);
+        document.getElementById('detailModalClose2').addEventListener('click', closeModal);
+    </script>
+</body>
+</html>

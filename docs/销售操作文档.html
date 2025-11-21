@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>销售操作文档</title>
+<style>
+body{margin:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.8;color:#111827;background:#ffffff}
+.container{max-width:880px;margin:0 auto}
+.title{font-size:28px;font-weight:700;margin-bottom:12px}
+.subtitle{font-size:14px;color:#6b7280;margin-bottom:24px}
+.content h1,.content h2,.content h3{color:#0f172a}
+.content h1{font-size:28px}
+.content h2{font-size:22px;margin-top:18px}
+.content h3{font-size:18px;margin-top:16px}
+.content code{background:#f3f4f6;color:#111827;padding:2px 6px;border-radius:4px}
+.content pre{background:#f8fafc;color:#111827;border:1px solid #e5e7eb;border-radius:8px;padding:16px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:15px;line-height:1.8}
+.content a{color:#2563eb;text-decoration:none}
+.content a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="title">销售操作文档</div>
+<div class="subtitle">按当前线上业务与校验规则整理</div>
+<div id="app" class="content"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script type="text/markdown" id="md">
+# 销售操作文档
+
+**适用范围**
+- 群昵称必须以`XS_`开头
+- 支持模板类型：`【销售接手】`、`【反馈】`、`【成交】`、`【流失】`
+
+**操作顺序（业务流程）**
+- 第一步：在`待接手`或`销售跟进中`阶段使用`【销售接手】`确认归属
+- 第二步：跟进过程中可多次提交`【反馈】`
+- 第三步：根据结果提交`【成交】`或`【流失】`
+- 输出结果：状态与金额/原因等字段更新，并生成对应流程日志
+
+**模板格式（高对比度）**
+```
+【销售接手】
+家长编号：Pxxxxxxxx
+XS_团队: 广州/深圳（可选）
+```
+```
+【反馈】
+家长编号：Pxxxxxxxx
+XS_反馈类型: 当日/3天内/7天内/7天后/其他
+XS_跟进阶段: 联系不上/初步清洗/成功约了首Call/决策是否去香港/对比机构阶段/邀约到访/测评/谈方案中（可选）
+XS_预收金额: 数字（可选）
+XS_是否上门: 是/否（可选）
+XS_意向度: 低/中/高（可选）
+XS_DSE: 是/否（可选）
+XS_内容: 文本（可选）
+XS_备注: 文本（可选）
+```
+```
+【成交】
+家长编号：Pxxxxxxxx
+成交金额: 数字（RMB）
+XS_备注: 文本（可选）
+```
+```
+【流失】
+家长编号：Pxxxxxxxx
+XS_原因: 文本
+```
+
+**填写说明**
+- `销售接手`支持两种场景：被分配销售在`待接手`时确认接手，或在`销售跟进中`由当前销售确认归属
+- `XS_团队`枚举为`广州/深圳`，可同步更新销售团队与家长快照
+- `反馈`允许内容为空；反馈类型与阶段均需使用系统枚举
+- `成交`与`流失`仅在`销售跟进中`阶段可用，且必须为当前跟进销售
+
+**成功回执示例**
+- ✅ 销售接手成功！状态：销售跟进中
+- ✅ 反馈记录成功！反馈类型：… DSE：…
+- 🎉 成交记录成功！成交金额：¥…
+- ✅ 流失记录成功！状态：已流失
+
+**常见错误与解决**
+- 团队填写不在枚举：按照`广州/深圳`修正
+- 非当前归属销售尝试操作：提示无权限
+</script>
+<script>
+var md=document.getElementById('md').textContent;document.getElementById('app').innerHTML=marked.parse(md);
+</script>
+</body>
+</html>

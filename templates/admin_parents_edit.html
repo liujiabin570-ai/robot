@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>编辑家长</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, system-ui, sans-serif; margin: 24px; }
+    form { max-width: 980px; }
+    h2 { margin: 0 0 12px; }
+    .grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+    @media (max-width: 900px){ .grid{ grid-template-columns: 1fr; } }
+    label { display:block; margin-top: 10px; font-weight: 600; }
+    select, input, textarea { width:100%; padding:10px; box-sizing:border-box; margin-top:6px; border:1px solid #e5e5ea; border-radius:8px; }
+    .actions { margin-top:16px; display:flex; gap:12px; }
+    .btn { padding:10px 14px; border:none; border-radius:999px; cursor:pointer; }
+    .primary { background:#1d1d1f; color:#fff; }
+    .ghost { background:#fff; border:1px solid #e5e5ea; }
+    .muted { color:#6e6e73; }
+    .error { color:#c00; margin-bottom: 10px; }
+    .row { display:flex; gap:16px; }
+    .row > div { flex:1; }
+    .readonly { background:#fafafa; }
+    .checkbox { display:flex; align-items:center; gap:8px; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <h2>编辑家长 #{{ obj.id }} （{{ obj.parent_code }}）</h2>
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+  <form method="post">
+    <div class="grid">
+      <div>
+        <label>家长编号 parent_code</label>
+        <input type="text" name="parent_code" value="{{ obj.parent_code or '' }}" />
+      </div>
+      <div>
+        <label>推荐渠道 recommend_channel</label>
+        <select name="recommend_channel">
+          {% for v in ['社媒','合伙人'] %}
+          <option value="{{ v }}" {% if obj.recommend_channel==v %}selected{% endif %}>{{ v }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>来源平台 source_platform</label>
+        <select name="source_platform">
+          {% for v in ['抖音','小红书','微信公众号','快手','B站','其他'] %}
+          <option value="{{ v }}" {% if obj.source_platform==v %}selected{% endif %}>{{ v }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>业务类型 service_category</label>
+        <select name="service_category">
+          {% for v in ['DSE','插班和相关培训','外教','中文'] %}
+          <option value="{{ v }}" {% if obj.service_category==v %}selected{% endif %}>{{ v }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>当前状态 current_status</label>
+        <select name="current_status">
+          {% for v in ['待接手','合伙人跟进中','销售跟进中','已成交','已流失'] %}
+          <option value="{{ v }}" {% if obj.current_status==v %}selected{% endif %}>{{ v }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>意向度 intent_level</label>
+        <select name="intent_level">
+          {% for v in ['低','中','高'] %}
+          <option value="{{ v }}" {% if obj.intent_level==v %}selected{% endif %}>{{ v }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>社交媒体ID social_media_id</label>
+        <input type="text" name="social_media_id" value="{{ obj.social_media_id or '' }}" />
+      </div>
+      <div>
+        <label>合伙人ID partner_id</label>
+        <input type="text" name="partner_id" value="{{ obj.partner_id or '' }}" />
+      </div>
+      <div>
+        <label>销售人员ID salesperson_id</label>
+        <input type="text" name="salesperson_id" value="{{ obj.salesperson_id or '' }}" />
+      </div>
+      <div>
+        <label>销售团队 sales_team</label>
+        <select name="sales_team">
+          <option value="" {% if not obj.sales_team %}selected{% endif %}>（未设置）</option>
+          {% for v in ['广州','深圳'] %}
+          <option value="{{ v }}" {% if obj.sales_team==v %}selected{% endif %}>{{ v }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>成交金额 deal_amount</label>
+        <input type="number" step="0.01" name="deal_amount" value="{{ obj.deal_amount or '' }}" />
+      </div>
+      <div>
+        <label>预付金额 prepayment_amount</label>
+        <input type="number" step="0.01" name="prepayment_amount" value="{{ obj.prepayment_amount or '' }}" />
+      </div>
+      <div>
+        <label>是否 DSE is_dse</label>
+        <div class="checkbox">
+          <input type="checkbox" name="is_dse" value="1" {% if obj.is_dse %}checked{% endif %} />
+          <span class="muted">选中为是</span>
+        </div>
+      </div>
+      <div>
+        <label>是否到访 is_visit</label>
+        <div class="checkbox">
+          <input type="checkbox" name="is_visit" value="1" {% if obj.is_visit %}checked{% endif %} />
+          <span class="muted">选中为是</span>
+        </div>
+      </div>
+      <div>
+        <label>学员ID student_id</label>
+        <input type="text" name="student_id" value="{{ obj.student_id or '' }}" />
+      </div>
+      <div>
+        <label>跟进阶段 followup_stage</label>
+        <select name="followup_stage">
+          <option value="" {% if not obj.followup_stage %}selected{% endif %}>（未设置）</option>
+          {% for v in ['联系不上','初步清洗','成功约了首Call','决策是否去香港','对比机构阶段','邀约到访/测评','谈方案中'] %}
+          <option value="{{ v }}" {% if obj.followup_stage==v %}selected{% endif %}>{{ v }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>首发群ID first_group_id</label>
+        <input type="text" name="first_group_id" value="{{ obj.first_group_id or '' }}" />
+      </div>
+      <div>
+        <label>首发群名称 first_group_name</label>
+        <input type="text" name="first_group_name" value="{{ obj.first_group_name or '' }}" />
+      </div>
+    </div>
+
+    <label style="margin-top:14px;">需求 requirement</label>
+    <textarea name="requirement" rows="4">{{ obj.requirement or '' }}</textarea>
+
+    <div class="row" style="margin-top:12px;">
+      <div>
+        <label>创建时间 created_at</label>
+        <input class="readonly" type="text" value="{{ obj.created_at }}" readonly />
+      </div>
+      <div>
+        <label>修改时间 updated_at</label>
+        <input class="readonly" type="text" value="{{ obj.updated_at }}" readonly />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" type="submit">保存</button>
+      <a class="btn ghost" href="{{ url_for('ui_index') }}">取消</a>
+    </div>
+  </form>
+</body>
+</html>

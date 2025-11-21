@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>社媒操作文档</title>
+<style>
+body{margin:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.8;color:#111827;background:#ffffff}
+.container{max-width:880px;margin:0 auto}
+.title{font-size:28px;font-weight:700;margin-bottom:12px}
+.subtitle{font-size:14px;color:#6b7280;margin-bottom:24px}
+.content h1,.content h2,.content h3{color:#0f172a}
+.content h1{font-size:28px}
+.content h2{font-size:22px;margin-top:18px}
+.content h3{font-size:18px;margin-top:16px}
+.content code{background:#f3f4f6;color:#111827;padding:2px 6px;border-radius:4px}
+.content pre{background:#f8fafc;color:#111827;border:1px solid #e5e7eb;border-radius:8px;padding:16px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:15px;line-height:1.8}
+.content a{color:#2563eb;text-decoration:none}
+.content a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="title">社媒操作文档</div>
+<div class="subtitle">按当前线上业务与校验规则整理</div>
+<div id="app" class="content"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script type="text/markdown" id="md">
+# 社媒操作文档
+
+**适用范围**
+- 群昵称必须以`SM_`开头
+- 支持模板类型：`【新家长】`
+
+**操作顺序（业务流程）**
+- 第一步：提交`【新家长】`模板并指定分配对象（合伙人或销售）
+- 系统入库后自动生成家长编号与状态`待接手`
+- 被分配对象后续按其角色流程继续处理（接手/补全/转销售/反馈等）
+
+**模板格式（高对比度）**
+```
+【新家长】
+SM_平台来源: 抖音/小红书/微信公众号/快手/B站/其他
+SM_联系方式类别: 微信号/手机号/香港WS手机号/微信二维码
+SM_联系方式: 值（若为微信二维码，填写微信昵称）
+SM_业务类型: DSE/插班和相关培训/外教/中文
+SM_需求: 文本
+SM_分配给: @HP_合伙人昵称 或 @XS_销售昵称
+SM_备注: 文本（可选）
+```
+
+**填写说明**
+- 平台来源与业务类型必须为系统支持的枚举值
+- 联系方式类别与值需匹配相应格式；微信号不得为纯数字
+- 分配对象需带`@HP_`或`@XS_`前缀；未登记但前缀正确时系统自动识别角色并绑定
+- 成功入库后状态为`待接手`，由被分配人确认接手
+
+**成功回执示例**
+- ✅ 新家长录入并分配成功！家长编号：PYYYYMMDD-XXX，状态：待接手
+
+**常见错误与解决**
+- 平台或业务类型不在枚举：请按给定枚举填写
+- 微信号格式错误（不能纯数字、长度5–20）：调整为合规格式
+- 分配对象无有效前缀：改为`@HP_...`或`@XS_...`
+</script>
+<script>
+var md=document.getElementById('md').textContent;document.getElementById('app').innerHTML=marked.parse(md);
+</script>
+</body>
+</html>
